@@ -52,7 +52,7 @@ class Index {
             .setHeader('Document-Policy', 'unsized-media=?0, document-write=?0, max-image-bpp=2.0, frame-loading=lazy, report-to=doc-ep');
         return next();
     };
-    static Logger = (mreq, mres, next) => require('response-time')((req, res, time) => {
+    static Logger = (con) => (mreq, mres, next) => require('response-time')((req, res, time) => {
         class CC {
             static colors = new Index.Dict('', chalk)
                 .add('dr', chalk.rgb(120, 0, 0))
@@ -71,26 +71,61 @@ class Index {
                 .add('g', chalk.rgb(120, 120, 120))
                 .add('b', chalk.rgb(0, 0, 0))
             static CPrep = (color) => this.colors.get(color).bold.underline;
-            static fDict = new Index.Dict('', new Index.Dict('', chalk))
-                .add('status', new Index.Dict('', chalk).addMany(...Array.of(['dr', 'lr', 'y', 'lr', 'p', 'w'].map((v, i) => [String(i == 5 ? 'default' : i + 1), this.CPrep(v)]))))
-                .add('method', new Index.Dict('', chalk)
-                    .add('GET', this.CPrep('dg'))
-                    .add('POST', this.CPrep('db'))
-                    .add('PUT', this.CPrep('y'))
-                    .add('DELETE', this.CPrep('dr'))
-                    .add('PATCH', this.CPrep('p'))
-                    .add('HEAD', this.CPrep('lb'))
-                    .add('OPTIONS', this.CPrep('o'))
-                    .add('TRACE', this.CPrep('bb'))
-                    .add('CONNECT', this.CPrep('bg'))
+            static fDict = new Index.Dict('', this.colors)
+                .add(
+                    'status',
+                    new Index.Dict('', chalk)
+                        .add('0', this.CPrep('dr'))
+                        .add('1', this.CPrep('lr'))
+                        .add('2', this.CPrep('dg'))
+                        .add('3', this.CPrep('y'))
+                        .add('4', this.CPrep('lr'))
+                        .add('default', this.CPrep('p'))
                 )
-                .add('resTime', new Index.Dict('', chalk).addMany(...Array.of('lg', 'dg', 'y', 'dr', 'dr', 'p', 'bb', 'db', 'lb', 'w', 'g').map((v, i) => [String(i), this.CPrep(v)])))
-                .add('bytes', new Index.Dict('', chalk).addMany(...Array.of('g', 'lg', 'dg', 'y', 'lr', 'dr', 'w').map((v, i) => [String(i == 6 ? '-1' : i), this.CPrep(v)])))
+                .add(
+                    'method',
+                    new Index.Dict('', chalk)
+                        .add('GET', this.CPrep('dg'))
+                        .add('POST', this.CPrep('db'))
+                        .add('PUT', this.CPrep('y'))
+                        .add('DELETE', this.CPrep('dr'))
+                        .add('PATCH', this.CPrep('p'))
+                        .add('HEAD', this.CPrep('lb'))
+                        .add('OPTIONS', this.CPrep('o'))
+                        .add('TRACE', this.CPrep('bb'))
+                        .add('CONNECT', this.CPrep('bg'))
+                )
+                .add(
+                    'resTime',
+                    new Index.Dict('', chalk)
+                        .add('0', this.CPrep('lg'))
+                        .add('1', this.CPrep('dg'))
+                        .add('2', this.CPrep('y'))
+                        .add('3', this.CPrep('lr'))
+                        .add('4', this.CPrep('dr'))
+                        .add('5', this.CPrep('p'))
+                        .add('6', this.CPrep('bb'))
+                        .add('7', this.CPrep('db'))
+                        .add('8', this.CPrep('lb'))
+                        .add('9', this.CPrep('w'))
+                        .add('10', this.CPrep('g'))
+                )
+                .add(
+                    'bytes',
+                    new Index.Dict('', chalk)
+                        .add('0', this.CPrep('g'))
+                        .add('1', this.CPrep('lg'))
+                        .add('2', this.CPrep('dg'))
+                        .add('3', this.CPrep('y'))
+                        .add('4', this.CPrep('lr'))
+                        .add('5', this.CPrep('dr'))
+                        .add('-1', this.CPrep('w'))
+                )
             static status = (code) => (this.fDict.get('status').get(String(code).at(0)))(code);
             static path = this.colors.get('db')
             static method = (method) => (this.fDict.get('method').get(method))(method);
-            static resTime = (t) => (this.fDict.get('resTime').get(String(Math.min(Math.floor(t / 100), 10))))(`${t}ms`)
-            static bytes = (bytes) => (this.fDict.get('bytes').get(String([0, 1, 5, 10, 50, 100].findIndex((v) => ((Math.ceil(Number(bytes) / (10 ** 5))) <= v)))))(`${new Intl.NumberFormat('en-US').format(bytes)} bytes`);
+            static resTime = (t) => (this.fDict.get('resTime').get(String(Math.min(Math.floor(t / 1e2), 1e1))))(`${t}ms`)
+            static bytes = (bytes) => (this.fDict.get('bytes').get(String([0, 1, 5, 1e1, 5e1, 1e2].findIndex((v) => ((Math.ceil(Number(bytes) / (10 ** 5))) <= v)))))(`${new Intl.NumberFormat('en-US').format(bytes)} bytes`);
         }
         const ntf = (l, v) => new Intl.DateTimeFormat(l, v)
         const data = {
@@ -102,7 +137,7 @@ class Index {
             bytes: String(res.getHeader('Content-Length') || 0),
         }
         const { ip, method: m, url: u, status: s, time: t, bytes: b } = data;
-        console.log(`${(CC.colors.get('lg'))(ip)} [${chalk.bold(ntf('en-us', { ...Object.fromEntries(Array.of(['month', 'weekday'], ['year', 'day', 'hour', 'minute', 'second']).map((v, i) => [v, i ? 'numeric' : 'short'])), timeZone: "America/Detroit", timeZoneName: undefined }).format())}] ${Array.of(['method', m], ['path', u], ['status', s], ['resTime', t]).map(([m, v]) => CC[m](v)).join(' ')} (${CC.bytes(b)})`);
+        con.log(`${(CC.colors.get('lg'))(ip)} [${chalk.bold(ntf('en-us', { ...Object.fromEntries(Array.of(['month', 'weekday'], ['year', 'day', 'hour', 'minute', 'second']).map((v, i) => [v, i ? 'numeric' : 'short'])), timeZone: "America/Detroit", timeZoneName: undefined }).format())}] ${Array.of(['method', m], ['path', u], ['status', s], ['resTime', t]).map(([m, v]) => CC[m](v)).join(' ')} (${CC.bytes(b)})`);
     })(mreq, mres, next);
     static Trace = (req, res, next) => (req.method == 'TRACE')
         ? res.set('Content-Type', 'message/http').send([`HTTP/${req.httpVersion} 200 OK`, ...req.rawHeaders.map((h, i, a) => (i % 2) ? '' : `${h}: ${a[i + 1]}`).filter(Boolean), '', req.body].join('\r\n'))
