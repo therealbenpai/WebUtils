@@ -5,7 +5,7 @@ const assert = require('assert/strict');
 const chalk = new Chalk.Instance({ level: 3 });
 
 class Index {
-    static Dict = class {
+    static Dict = class Dict {
         constructor(_, __) {
             this.dict = new Map();
         }
@@ -55,45 +55,37 @@ class Index {
     static Logger = (mreq, mres, next) => require('response-time')((req, res, time) => {
         class CC {
             static colors = new Index.Dict('', chalk)
-                .addMany(
-                    ['dr', chalk.rgb(120, 0, 0)],
-                    ['lr', chalk.rgb(250, 120, 120)],
-                    ['o', chalk.rgb(255, 120, 0)],
-                    ['y', chalk.yellow],
-                    ['dg', chalk.rgb(0, 150, 0)],
-                    ['lg', chalk.rgb(0, 190, 0)],
-                    ['bg', chalk.rgb(100, 255, 0)],
-                    ['db', chalk.rgb(0, 0, 139)],
-                    ['lb', chalk.rgb(65, 105, 225)],
-                    ['bb', chalk.rgb(0, 191, 255)],
-                    ['p', chalk.rgb(255, 0, 255)],
-                    ['pi', chalk.rgb(255, 105, 180)],
-                    ['w', chalk.rgb(255, 255, 255)],
-                    ['g', chalk.rgb(120, 120, 120)],
-                    ['b', chalk.rgb(0, 0, 0)]
-                )
+                .add('dr', chalk.rgb(120, 0, 0))
+                .add('lr', chalk.rgb(250, 120, 120))
+                .add('o', chalk.rgb(255, 120, 0))
+                .add('y', chalk.yellow)
+                .add('dg', chalk.rgb(0, 150, 0))
+                .add('lg', chalk.rgb(0, 190, 0))
+                .add('bg', chalk.rgb(100, 255, 0))
+                .add('db', chalk.rgb(0, 0, 139))
+                .add('lb', chalk.rgb(65, 105, 225))
+                .add('bb', chalk.rgb(0, 191, 255))
+                .add('p', chalk.rgb(255, 0, 255))
+                .add('pi', chalk.rgb(255, 105, 180))
+                .add('w', chalk.rgb(255, 255, 255))
+                .add('g', chalk.rgb(120, 120, 120))
+                .add('b', chalk.rgb(0, 0, 0))
             static CPrep = (color) => this.colors.get(color).bold.underline;
             static fDict = new Index.Dict('', new Index.Dict('', chalk))
-                .addMany(
-                    ['status', new Index.Dict('', chalk).addMany(...Array.of(['dr', 'lr', 'y', 'lr', 'p', 'w'].map((v, i) => [String(i == 5 ? 'default' : i + 1), this.CPrep(v)])))],
-                    ['method', new Index.Dict('', chalk)
-                        .addMany(
-                            ...Array.of(
-                                ['GET', 'dg'],
-                                ['POST', 'db'],
-                                ['PUT', 'y'],
-                                ['DELETE', 'dr'],
-                                ['PATCH', 'p'],
-                                ['HEAD', 'lb'],
-                                ['OPTIONS', 'o'],
-                                ['TRACE', 'bb'],
-                                ['CONNECT', 'bg']
-                            ).map(([k, v]) => [k, this.CPrep(v)])
-                        )
-                    ],
-                    ['resTime', new Index.Dict('', chalk).addMany(...Array.of('lg', 'dg', 'y', 'dr', 'dr', 'p', 'bb', 'db', 'lb', 'w', 'g').map((v, i) => [String(i), this.CPrep(v)]))],
-                    ['bytes', new Index.Dict('', chalk).addMany(...Array.of('g', 'lg', 'dg', 'y', 'lr', 'dr', 'w').map((v, i) => [String(i == 6 ? '-1' : i), this.CPrep(v)]))]
+                .add('status', new Index.Dict('', chalk).addMany(...Array.of(['dr', 'lr', 'y', 'lr', 'p', 'w'].map((v, i) => [String(i == 5 ? 'default' : i + 1), this.CPrep(v)]))))
+                .add('method', new Index.Dict('', chalk)
+                    .add('GET', this.CPrep('dg'))
+                    .add('POST', this.CPrep('db'))
+                    .add('PUT', this.CPrep('y'))
+                    .add('DELETE', this.CPrep('dr'))
+                    .add('PATCH', this.CPrep('p'))
+                    .add('HEAD', this.CPrep('lb'))
+                    .add('OPTIONS', this.CPrep('o'))
+                    .add('TRACE', this.CPrep('bb'))
+                    .add('CONNECT', this.CPrep('bg'))
                 )
+                .add('resTime', new Index.Dict('', chalk).addMany(...Array.of('lg', 'dg', 'y', 'dr', 'dr', 'p', 'bb', 'db', 'lb', 'w', 'g').map((v, i) => [String(i), this.CPrep(v)])))
+                .add('bytes', new Index.Dict('', chalk).addMany(...Array.of('g', 'lg', 'dg', 'y', 'lr', 'dr', 'w').map((v, i) => [String(i == 6 ? '-1' : i), this.CPrep(v)])))
             static status = (code) => (this.fDict.get('status').get(String(code).at(0)))(code);
             static path = this.colors.get('db')
             static method = (method) => (this.fDict.get('method').get(method))(method);
