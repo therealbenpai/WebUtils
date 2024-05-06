@@ -102,7 +102,7 @@ class Index {
             bytes: String(res.getHeader('Content-Length') || 0),
         }
         const { ip, method: m, url: u, status: s, time: t, bytes: b } = data;
-        console.log(`${(CC.colors.get('lg'))(ip)} [${CC.chalk.bold(ntf('en-us', { ...Object.fromEntries(Array.of(['month', 'weekday'], ['year', 'day', 'hour', 'minute', 'second']).map((v, i) => [v, i ? 'numeric' : 'short'])), timeZone: "America/Detroit", timeZoneName: undefined }).format())}] ${Array.of(['method', m], ['path', u], ['status', s], ['resTime', t]).map(([m, v]) => CC[m](v)).join(' ')} (${CC.bytes(b)})`);
+        console.log(`${(CC.colors.get('lg'))(ip)} [${chalk.bold(ntf('en-us', { ...Object.fromEntries(Array.of(['month', 'weekday'], ['year', 'day', 'hour', 'minute', 'second']).map((v, i) => [v, i ? 'numeric' : 'short'])), timeZone: "America/Detroit", timeZoneName: undefined }).format())}] ${Array.of(['method', m], ['path', u], ['status', s], ['resTime', t]).map(([m, v]) => CC[m](v)).join(' ')} (${CC.bytes(b)})`);
     })(mreq, mres, next);
     static Trace = (req, res, next) => (req.method == 'TRACE')
         ? res.set('Content-Type', 'message/http').send([`HTTP/${req.httpVersion} 200 OK`, ...req.rawHeaders.map((h, i, a) => (i % 2) ? '' : `${h}: ${a[i + 1]}`).filter(Boolean), '', req.body].join('\r\n'))
