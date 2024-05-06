@@ -40,11 +40,11 @@ declare module '@therealbenpai/webutils' {
         }
         interface ManualInterface {
             /** The function used to encrypt the data */
-            static encrypt(data: string): string;
+            static encrypt(data: string, iv: string, key: string): string;
             /** The function used to verify the data */
-            static verify(data: string): boolean;
+            static verify(data: string, iv: string, key: string): boolean;
             /** The function used to decrypt the data */
-            static decrypt(data: string): string;
+            static decrypt(data: string, iv: string, key: string): string;
         }
         class Manual implements ManualInterface {
             static encrypt(data: string): string;

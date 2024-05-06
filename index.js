@@ -2,6 +2,7 @@ const Chalk = require('chalk');
 const crypto = require('crypto');
 const { Buffer } = require('buffer');
 const assert = require('assert/strict');
+const chalk = new Chalk.Instance({ level: 3 });
 
 class Index {
     static Dict = class {
@@ -53,30 +54,29 @@ class Index {
     };
     static Logger = (mreq, mres, next) => require('response-time')((req, res, time) => {
         class CC {
-            static chalk = new Chalk.Instance({ level: 3 });
-            static colors = new Index.Dict('', this.chalk)
+            static colors = new Index.Dict('', chalk)
                 .addMany(
-                    ['dr', this.chalk.rgb(120, 0, 0)],
-                    ['lr', this.chalk.rgb(250, 120, 120)],
-                    ['o', this.chalk.rgb(255, 120, 0)],
-                    ['y', this.chalk.yellow],
-                    ['dg', this.chalk.rgb(0, 150, 0)],
-                    ['lg', this.chalk.rgb(0, 190, 0)],
-                    ['bg', this.chalk.rgb(100, 255, 0)],
-                    ['db', this.chalk.rgb(0, 0, 139)],
-                    ['lb', this.chalk.rgb(65, 105, 225)],
-                    ['bb', this.chalk.rgb(0, 191, 255)],
-                    ['p', this.chalk.rgb(255, 0, 255)],
-                    ['pi', this.chalk.rgb(255, 105, 180)],
-                    ['w', this.chalk.rgb(255, 255, 255)],
-                    ['g', this.chalk.rgb(120, 120, 120)],
-                    ['b', this.chalk.rgb(0, 0, 0)]
+                    ['dr', chalk.rgb(120, 0, 0)],
+                    ['lr', chalk.rgb(250, 120, 120)],
+                    ['o', chalk.rgb(255, 120, 0)],
+                    ['y', chalk.yellow],
+                    ['dg', chalk.rgb(0, 150, 0)],
+                    ['lg', chalk.rgb(0, 190, 0)],
+                    ['bg', chalk.rgb(100, 255, 0)],
+                    ['db', chalk.rgb(0, 0, 139)],
+                    ['lb', chalk.rgb(65, 105, 225)],
+                    ['bb', chalk.rgb(0, 191, 255)],
+                    ['p', chalk.rgb(255, 0, 255)],
+                    ['pi', chalk.rgb(255, 105, 180)],
+                    ['w', chalk.rgb(255, 255, 255)],
+                    ['g', chalk.rgb(120, 120, 120)],
+                    ['b', chalk.rgb(0, 0, 0)]
                 )
             static CPrep = (color) => this.colors.get(color).bold.underline;
-            static fDict = new Index.Dict('', new Index.Dict('', this.chalk))
+            static fDict = new Index.Dict('', new Index.Dict('', chalk))
                 .addMany(
-                    ['status', new Index.Dict('', this.chalk).addMany(...Array.of(['dr', 'lr', 'y', 'lr', 'p', 'w'].map((v, i) => [String(i == 5 ? 'default' : i + 1), this.CPrep(v)])))],
-                    ['method', new Index.Dict('', this.chalk)
+                    ['status', new Index.Dict('', chalk).addMany(...Array.of(['dr', 'lr', 'y', 'lr', 'p', 'w'].map((v, i) => [String(i == 5 ? 'default' : i + 1), this.CPrep(v)])))],
+                    ['method', new Index.Dict('', chalk)
                         .addMany(
                             ...Array.of(
                                 ['GET', 'dg'],
@@ -91,8 +91,8 @@ class Index {
                             ).map(([k, v]) => [k, this.CPrep(v)])
                         )
                     ],
-                    ['resTime', new Index.Dict('', this.chalk).addMany(...Array.of('lg', 'dg', 'y', 'dr', 'dr', 'p', 'bb', 'db', 'lb', 'w', 'g').map((v, i) => [String(i), this.CPrep(v)]))],
-                    ['bytes', new Index.Dict('', this.chalk).addMany(...Array.of('g', 'lg', 'dg', 'y', 'lr', 'dr', 'w').map((v, i) => [String(i == 6 ? '-1' : i), this.CPrep(v)]))]
+                    ['resTime', new Index.Dict('', chalk).addMany(...Array.of('lg', 'dg', 'y', 'dr', 'dr', 'p', 'bb', 'db', 'lb', 'w', 'g').map((v, i) => [String(i), this.CPrep(v)]))],
+                    ['bytes', new Index.Dict('', chalk).addMany(...Array.of('g', 'lg', 'dg', 'y', 'lr', 'dr', 'w').map((v, i) => [String(i == 6 ? '-1' : i), this.CPrep(v)]))]
                 )
             static status = (code) => (this.fDict.get('status').get(String(code).at(0)))(code);
             static path = this.colors.get('db')
